@@ -19,7 +19,7 @@ async function isPasswordProtected(domain) {
                 validateStatus: function (status) {
                     return status < 500;
                 },
-                maxRedirects: 0 // Don't follow redirects
+                maxRedirects: 0 
             });
     
             if (response.status === 403) {
