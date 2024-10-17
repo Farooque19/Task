@@ -93,6 +93,26 @@ async function checkShopifyStatus(domain) {
     }
 }
 
+function generateSummaryStats(results) {
+    const total = results.length;
+    const shopifyCount = results.filter(r => r.isShopify === 'TRUE').length;
+    const nonShopifyCount = total - shopifyCount;
+    const activeCount = results.filter(r => r.isActive === 'TRUE').length;
+    const nonActiveCount = total - activeCount;
+    const activePassword = results.filter(r => r.isPasswordProtected === 'TRUE').length;
+    const nonActivePassword = total - activePassword;
+
+    return {
+        total,
+        shopifyCount,
+        nonShopifyCount,
+        activeCount,
+        nonActiveCount,
+        activePassword,
+        nonActivePassword,
+    };
+}
+
 const processCSV = async () => {
     const results = [];
     const promises = []; // Store all promises here
@@ -127,6 +147,52 @@ const processCSV = async () => {
             for (const result of resolvedResults) {
                 result.isActive = await checkShopifyStatus(result.Client_Domain);
             }
+
+            const stats = generateSummaryStats(resolvedResults);
+            console.log('Summary Statistics:', stats);
+
+            resolvedResults.push({
+                Client_Domain: 'Total Number of Data',
+                isShopify: stats.total,
+                isActive: '',
+                isPasswordProtected: ''
+            });
+            resolvedResults.push({
+                Client_Domain: 'Total Shopify Domains',
+                isShopify: stats.shopifyCount,
+                isActive: '',
+                isPasswordProtected: ''
+            });
+            resolvedResults.push({
+                Client_Domain: 'Total Non-Shopify Domains',
+                isShopify: stats.nonShopifyCount,
+                isActive: '',
+                isPasswordProtected: ''
+            });
+            resolvedResults.push({
+                Client_Domain: 'Total Active Domains',
+                isShopify: '',
+                isActive: stats.activeCount,
+                isPasswordProtected: ''
+            });
+            resolvedResults.push({
+                Client_Domain: 'Total Non-Active Domains',
+                isShopify: '',
+                isActive: stats.nonActiveCount,
+                isPasswordProtected: ''
+            });
+            resolvedResults.push({
+                Client_Domain: 'Total Password-Protected Domains',
+                isShopify: '',
+                isActive: '',
+                isPasswordProtected: stats.activePassword
+            });
+            resolvedResults.push({
+                Client_Domain: 'Total Non-Password-Protected Domains',
+                isShopify: '',
+                isActive: '',
+                isPasswordProtected: stats.nonActivePassword
+            });
 
             // Get all existing fields from the results
             const fields = Object.keys(resolvedResults[0]);
