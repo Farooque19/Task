@@ -46,7 +46,7 @@ async function isPasswordProtected(domain) {
                 return 'TRUE';
             }
         } else {
-            console.log(`Error occurred while checking password protection: ${error.message}`);
+            console.log(`Error occurred while checking password protection: ${error.message} for domain: ${domain}`);
             return 'FALSE';
         }
     }
@@ -81,7 +81,13 @@ async function checkShopifyStatus(domain) {
                 return status < 500;
             }
         });
-
+        console.log(response.status);
+        if (response.status === 302 || response.status === 301) {
+            const redirectLocation = response.headers.location;
+            if (redirectLocation && redirectLocation.includes('password')) {
+                return 'TRUE';
+            }
+        }
         if (response.status === 200) {
             return 'TRUE';
         } else if (response.status === 404 || response.status === 403 || response.status === 503 || response.status === 402) {
