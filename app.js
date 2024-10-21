@@ -54,6 +54,7 @@ async function isPasswordProtected(domain) {
 
 async function getPoweredByHeader(domain) {
     try {
+        domain = domain.startsWith('http') ? domain : `https://${domain}`;
         if (isUrl(domain)) {
             const response = await axios.get(domain, {
                 validateStatus: function (status) {
@@ -65,7 +66,8 @@ async function getPoweredByHeader(domain) {
         }
         return false;
     } catch (error) {
-        return `Request failed: ${error.message}`;
+        console.log(error);
+        return false;
     }
 }
 
@@ -132,7 +134,7 @@ const processCSV = async () => {
             const promise = (async () => {
                 const isShopifyVal = await isShopify(clientDomain);
                 const isPassword = await isPasswordProtected(clientDomain);
-
+                console.log(`${isShopifyVal} : ${clientDomain}`);
                 data.isShopify = (isShopifyDomain(clientDomain) || isShopifyVal) ? 'TRUE' : 'FALSE';
                 data.isPasswordProtected = isPassword;
                 return data;
